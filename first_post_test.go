@@ -6,10 +6,6 @@ import (
 	"time"
 )
 
-func init() {
-	quit = make(chan int)
-}
-
 func TestBasicGo(t *testing.T) {
 	go testBoring("boring!")
 }
@@ -37,15 +33,6 @@ func TestGoFuncParam(t *testing.T) {
 		}(&i)
 	}
 	time.Sleep(100 * time.Millisecond)
-}
-
-func TestLoops(t *testing.T) {
-	go loop()
-	go loop()
-
-	for i := 0; i < 2; i++ {
-		<-quit
-	}
 }
 
 func TestGoWithChannel(t *testing.T) {
@@ -171,9 +158,19 @@ func TestTimeOutWhole(t *testing.T) {
 }
 
 func TestChannelGenerator(t *testing.T) {
-	c := testBoringWithChannelGenerate("boring!")
+	ch := testBoringWithChannelGenerate("boring!")
 	for i := 0; i < 5; i++ {
-		log.Printf("You say: %q\n", <-c)
+		log.Printf("You say: %q\n", <-ch)
 	}
 	log.Println("I'm leaving.")
+}
+
+func TestChannelQuit(t *testing.T) {
+	quit := make(chan bool)
+	ch := testBoringWithChannelQuit("boring!", quit)
+	for i := 0; i < 5; i++ {
+		log.Printf("You say: %q\n", <-ch)
+	}
+	log.Println("I'm leaving.")
+	quit <- true
 }
